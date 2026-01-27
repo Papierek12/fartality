@@ -5,7 +5,6 @@ local RunService = game:GetService("RunService")
 
 local Library = {}
 
--- // Theme Colors
 local Colors = {
     Background = Color3.fromRGB(15, 12, 28),
     Section = Color3.fromRGB(22, 19, 38),
@@ -81,7 +80,6 @@ function Library:Init()
     DropdownContainer.ZIndex = 100 
     DropdownContainer.Parent = Main
 
-    -- // Logic Variables
     local CurrentTabData = nil
     local ActiveMenu = nil 
 
@@ -106,7 +104,6 @@ function Library:Init()
         end
     end)
 
-    -- // Dragging Logic
     local dragging, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -123,7 +120,6 @@ function Library:Init()
         if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
     end)
 
-    -- // TAB CREATION FUNCTION
     local function CreateTab(imageId, name)
         local TabButton = Instance.new("TextButton")
         TabButton.Size = UDim2.new(0, 90, 0, 30)
@@ -164,10 +160,6 @@ function Library:Init()
         Sidebar.Position = UDim2.new(0, 10, 0, 10)
         Sidebar.BackgroundTransparency = 1
         Sidebar.Parent = PageFrame
-
-        local SideList = Instance.new("UIListLayout")
-        SideList.Padding = UDim.new(0, 5)
-        SideList.Parent = Sidebar
 
         local ContentArea = Instance.new("Frame")
         ContentArea.Position = UDim2.new(0, 140, 0, 10)
@@ -234,6 +226,7 @@ function Library:Init()
 
             local SectionObject = {}
 
+            -- TOGGLE
             function SectionObject:AddToggle(text, default, callback)
                 local ToggleFrame = Instance.new("TextButton")
                 ToggleFrame.Size = UDim2.new(1, 0, 0, 20)
@@ -256,15 +249,14 @@ function Library:Init()
                 Box.AnchorPoint = Vector2.new(1, 0.5)
                 Box.Position = UDim2.new(1, 0, 0.5, 0)
                 Box.BackgroundColor3 = Colors.ControlBg
-                Box.BorderSizePixel = 0
                 Box.Parent = ToggleFrame
-                
+
                 local Check = Instance.new("Frame")
                 Check.Size = UDim2.new(1, 0, 1, 0)
                 Check.BackgroundColor3 = Colors.Accent
                 Check.Visible = default
                 Check.Parent = Box
-                
+
                 local state = default
                 ToggleFrame.MouseButton1Click:Connect(function()
                     state = not state
@@ -272,14 +264,11 @@ function Library:Init()
                     callback(state)
                 end)
                 
-                local BoxCorner = Instance.new("UICorner")
-                BoxCorner.CornerRadius = UDim.new(0,3)
-                BoxCorner.Parent = Box
-                local CheckCorner = Instance.new("UICorner")
-                CheckCorner.CornerRadius = UDim.new(0,3)
-                CheckCorner.Parent = Check
+                Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 3)
+                Instance.new("UICorner", Check).CornerRadius = UDim.new(0, 3)
             end
 
+            -- SLIDER
             function SectionObject:AddSlider(text, min, max, default, callback)
                 local SliderFrame = Instance.new("Frame")
                 SliderFrame.Size = UDim2.new(1, 0, 0, 20)
@@ -300,8 +289,6 @@ function Library:Init()
                 SliderContainer.Size = UDim2.new(0.5, 0, 1, 0)
                 SliderContainer.Position = UDim2.new(0.5, 0, 0, 0)
                 SliderContainer.BackgroundColor3 = Colors.ControlBg
-                SliderContainer.BorderSizePixel = 0
-                SliderContainer.ClipsDescendants = true
                 SliderContainer.Parent = SliderFrame
                 
                 local Bar = Instance.new("Frame")
@@ -312,7 +299,6 @@ function Library:Init()
                 local Fill = Instance.new("Frame")
                 Fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
                 Fill.BackgroundColor3 = Colors.Accent
-                Fill.BorderSizePixel = 0
                 Fill.Parent = Bar
                 
                 local ValueLabel = Instance.new("TextLabel")
@@ -328,8 +314,7 @@ function Library:Init()
                 local function Update(input)
                     local pos = math.clamp((input.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
                     Fill.Size = UDim2.new(pos, 0, 1, 0)
-                    local val = min + (max - min) * pos
-                    val = math.floor(val * 10) / 10
+                    local val = math.floor((min + (max - min) * pos) * 10) / 10
                     ValueLabel.Text = tostring(val)
                     callback(val)
                 end
@@ -345,15 +330,11 @@ function Library:Init()
                         end)
                     end
                 end)
-                
-                local SC_Corner = Instance.new("UICorner")
-                SC_Corner.CornerRadius = UDim.new(0, 4)
-                SC_Corner.Parent = SliderContainer
-                local FillCorner = Instance.new("UICorner")
-                FillCorner.CornerRadius = UDim.new(0, 4)
-                FillCorner.Parent = Fill
+                Instance.new("UICorner", SliderContainer).CornerRadius = UDim.new(0, 4)
+                Instance.new("UICorner", Fill).CornerRadius = UDim.new(0, 4)
             end
 
+            -- KEYBIND
             function SectionObject:AddKeybind(text, default, callback)
                 local KeybindFrame = Instance.new("Frame")
                 KeybindFrame.Size = UDim2.new(1, 0, 0, 20)
@@ -366,7 +347,6 @@ function Library:Init()
                 Label.BackgroundTransparency = 1
                 Label.TextColor3 = Colors.LabelText
                 Label.Font = Enum.Font.Gotham
-                Label.TextSize = 12
                 Label.TextXAlignment = Enum.TextXAlignment.Left
                 Label.Parent = KeybindFrame
 
@@ -374,7 +354,6 @@ function Library:Init()
                 KeyButton.Size = UDim2.new(0.3, 0, 1, 0)
                 KeyButton.Position = UDim2.new(0.7, 0, 0, 0)
                 KeyButton.BackgroundColor3 = Colors.ControlBg
-                KeyButton.BorderSizePixel = 0
                 KeyButton.TextColor3 = Colors.DarkText
                 KeyButton.Font = Enum.Font.Gotham
                 KeyButton.TextSize = 11
@@ -384,41 +363,156 @@ function Library:Init()
                     if not key then return "None" end
                     if key == Enum.UserInputType.MouseButton1 then return "LMB" end
                     if key == Enum.UserInputType.MouseButton2 then return "RMB" end
-                    return key.Name
+                    return key.Name or tostring(key)
                 end
                 
                 KeyButton.Text = FormatKey(default)
-                
                 local listening = false
                 KeyButton.MouseButton1Click:Connect(function()
                     if listening then return end
                     listening = true
                     KeyButton.Text = "..."
-                    local inputConnection
-                    inputConnection = UserInputService.InputBegan:Connect(function(input)
-                        if input.UserInputType == Enum.UserInputType.Keyboard or input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
+                    local conn; conn = UserInputService.InputBegan:Connect(function(input)
+                        if input.UserInputType == Enum.UserInputType.Keyboard or input.UserInputType.MouseButton1 or input.UserInputType.MouseButton2 then
                             local key = (input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode) or input.UserInputType
-                            if key == Enum.KeyCode.Escape then key = nil end
-                            inputConnection:Disconnect()
+                            conn:Disconnect()
                             listening = false
                             KeyButton.Text = FormatKey(key)
                             callback(key)
                         end
                     end)
                 end)
-                
-                local KCorner = Instance.new("UICorner")
-                KCorner.CornerRadius = UDim.new(0, 4)
-                KCorner.Parent = KeyButton
-            end
-            
-            -- Simplified Dropdown/Colorpicker logic for Library brevity
-            function SectionObject:AddDropdown(text, options, default, callback)
-                -- (Dropdown logic here - same as your original)
+                Instance.new("UICorner", KeyButton).CornerRadius = UDim.new(0, 4)
             end
 
+            -- DROPDOWN
+            function SectionObject:AddDropdown(text, options, default, callback)
+                local current = default or options[1]
+                local DropdownFrame = Instance.new("Frame")
+                DropdownFrame.Size = UDim2.new(1, 0, 0, 20)
+                DropdownFrame.BackgroundTransparency = 1
+                DropdownFrame.Parent = Container
+
+                local Label = Instance.new("TextLabel")
+                Label.Text = text
+                Label.Size = UDim2.new(0.5, 0, 1, 0)
+                Label.BackgroundTransparency = 1
+                Label.TextColor3 = Colors.LabelText
+                Label.Font = Enum.Font.Gotham
+                Label.TextXAlignment = Enum.TextXAlignment.Left
+                Label.Parent = DropdownFrame
+
+                local TriggerBtn = Instance.new("TextButton")
+                TriggerBtn.Size = UDim2.new(0.5, 0, 1, 0)
+                TriggerBtn.Position = UDim2.new(0.5, 0, 0, 0)
+                TriggerBtn.BackgroundColor3 = Colors.ControlBg
+                TriggerBtn.Text = tostring(current)
+                TriggerBtn.TextColor3 = Colors.DarkText
+                TriggerBtn.Font = Enum.Font.Gotham
+                TriggerBtn.TextXAlignment = Enum.TextXAlignment.Right
+                TriggerBtn.Parent = DropdownFrame
+                Instance.new("UIPadding", TriggerBtn).PaddingRight = UDim.new(0, 6)
+                Instance.new("UICorner", TriggerBtn).CornerRadius = UDim.new(0, 4)
+
+                local FloatingList = Instance.new("Frame")
+                FloatingList.Size = UDim2.new(0, 140, 0, #options * 22)
+                FloatingList.BackgroundColor3 = Colors.Dropdown
+                FloatingList.Visible = false
+                FloatingList.ZIndex = 101
+                FloatingList.Parent = DropdownContainer
+                Instance.new("UICorner", FloatingList).CornerRadius = UDim.new(0, 4)
+                local ListLayout = Instance.new("UIListLayout")
+                ListLayout.Parent = FloatingList
+
+                for _, option in ipairs(options) do
+                    local ItemBtn = Instance.new("TextButton")
+                    ItemBtn.Size = UDim2.new(1, 0, 0, 22)
+                    ItemBtn.Text = "  " .. tostring(option)
+                    ItemBtn.TextColor3 = (option == current) and Colors.Accent or Colors.Text
+                    ItemBtn.BackgroundColor3 = (option == current) and Colors.DropdownSelectedBg or Colors.Dropdown
+                    ItemBtn.ZIndex = 102
+                    ItemBtn.Parent = FloatingList
+                    ItemBtn.MouseButton1Click:Connect(function()
+                        current = option
+                        TriggerBtn.Text = tostring(current)
+                        CloseCurrentMenu()
+                        callback(current)
+                    end)
+                end
+
+                TriggerBtn.MouseButton1Click:Connect(function()
+                    if FloatingList.Visible then CloseCurrentMenu() else
+                        CloseCurrentMenu()
+                        FloatingList.Visible = true
+                        ActiveMenu = {Frame = FloatingList, Trigger = TriggerBtn, Close = function() FloatingList.Visible = false end}
+                    end
+                end)
+
+                RunService.RenderStepped:Connect(function()
+                    if FloatingList.Visible then
+                        local absPos = TriggerBtn.AbsolutePosition
+                        local mainPos = Main.AbsolutePosition
+                        FloatingList.Position = UDim2.new(0, (absPos.X - mainPos.X) + TriggerBtn.AbsoluteSize.X - 140, 0, absPos.Y - mainPos.Y + TriggerBtn.AbsoluteSize.Y + 2)
+                    end
+                end)
+            end
+
+            -- COLOR PICKER
             function SectionObject:AddColorPicker(text, default, callback)
-                -- (ColorPicker logic here - same as your original)
+                local ColorFrame = Instance.new("Frame")
+                ColorFrame.Size = UDim2.new(1, 0, 0, 20)
+                ColorFrame.BackgroundTransparency = 1
+                ColorFrame.Parent = Container
+
+                local Label = Instance.new("TextLabel")
+                Label.Text = text
+                Label.Size = UDim2.new(0.6, 0, 1, 0)
+                Label.BackgroundTransparency = 1
+                Label.TextColor3 = Colors.LabelText
+                Label.Font = Enum.Font.Gotham
+                Label.TextXAlignment = Enum.TextXAlignment.Left
+                Label.Parent = ColorFrame
+
+                local PreviewBtn = Instance.new("TextButton")
+                PreviewBtn.Size = UDim2.new(0, 24, 0, 14)
+                PreviewBtn.Position = UDim2.new(1, 0, 0.5, 0)
+                PreviewBtn.AnchorPoint = Vector2.new(1, 0.5)
+                PreviewBtn.BackgroundColor3 = default
+                PreviewBtn.Text = ""
+                PreviewBtn.Parent = ColorFrame
+                Instance.new("UICorner", PreviewBtn).CornerRadius = UDim.new(0, 3)
+
+                local PickerPop = Instance.new("Frame")
+                PickerPop.Size = UDim2.new(0, 140, 0, 150)
+                PickerPop.BackgroundColor3 = Colors.Dropdown
+                PickerPop.Visible = false
+                PickerPop.ZIndex = 101
+                PickerPop.Parent = DropdownContainer
+                Instance.new("UICorner", PickerPop).CornerRadius = UDim.new(0, 6)
+
+                local Wheel = Instance.new("ImageLabel")
+                Wheel.Size = UDim2.new(0, 110, 0, 110)
+                Wheel.Position = UDim2.new(0.5, -55, 0, 10)
+                Wheel.Image = "rbxassetid://6020299385"
+                Wheel.BackgroundTransparency = 1
+                Wheel.ZIndex = 102
+                Wheel.Parent = PickerPop
+
+                PreviewBtn.MouseButton1Click:Connect(function()
+                    if PickerPop.Visible then CloseCurrentMenu() else
+                        CloseCurrentMenu()
+                        PickerPop.Visible = true
+                        ActiveMenu = {Frame = PickerPop, Trigger = PreviewBtn, Close = function() PickerPop.Visible = false end}
+                    end
+                end)
+                
+                RunService.RenderStepped:Connect(function()
+                    if PickerPop.Visible then
+                        local absPos = PreviewBtn.AbsolutePosition
+                        local mainPos = Main.AbsolutePosition
+                        PickerPop.Position = UDim2.new(0, (absPos.X - mainPos.X) - 116, 0, absPos.Y - mainPos.Y + 20)
+                    end
+                end)
             end
 
             return SectionObject
@@ -429,7 +523,6 @@ function Library:Init()
             Sub.Size = UDim2.new(1, 0, 0, 25)
             Sub.Text = subName
             Sub.Font = Enum.Font.Gotham
-            Sub.TextSize = 13
             Sub.TextColor3 = Colors.DarkText
             Sub.BackgroundTransparency = 1
             Sub.TextXAlignment = Enum.TextXAlignment.Left
