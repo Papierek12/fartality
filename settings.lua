@@ -1,3 +1,4 @@
+-- // Settings.lua
 getgenv().ExunysDeveloperAimbot = {
     DeveloperSettings = {
         UpdateMode = "RenderStepped",
@@ -7,8 +8,8 @@ getgenv().ExunysDeveloperAimbot = {
     Settings = {
         Enabled = false,
         TeamCheck = false,
-        AliveCheck = true,
-        WallCheck = true,
+        AliveCheck = false,
+        WallCheck = false,
         OffsetToMoveDirection = false,
         OffsetIncrement = 15,
         Sensitivity = 0.1,
@@ -19,8 +20,8 @@ getgenv().ExunysDeveloperAimbot = {
         Toggle = false
     },
     FOVSettings = {
-        Enabled = true,
-        Visible = true,
+        Enabled = false,
+        Visible = false,
         Radius = 90,
         NumSides = 60,
         Thickness = 1,
