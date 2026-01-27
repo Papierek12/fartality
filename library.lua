@@ -85,6 +85,13 @@ DropdownContainer.Parent = Main
 -- // LOGIC // --
 -----------------------------------------------------------
 
+-- [NEW] TOGGLE UI VISIBILITY
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        ScreenGui.Enabled = not ScreenGui.Enabled
+    end
+end)
+
 local CurrentTabData = nil
 local ActiveMenu = nil 
 
