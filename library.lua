@@ -71,8 +71,8 @@ function Library:Init()
     DropdownContainer.Name = "Dropdowns"
     DropdownContainer.Size = UDim2.new(1, 0, 1, 0)
     DropdownContainer.BackgroundTransparency = 1
-    DropdownContainer.ZIndex = 100 
-    DropdownContainer.Parent = Main
+    DropdownContainer.ZIndex = 1000 
+    DropdownContainer.Parent = ScreenGui -- Top level to avoid clipping
 
     local CurrentTabData = nil
     local ActiveMenu = nil 
@@ -84,20 +84,20 @@ function Library:Init()
         end
     end
 
+    -- Menu Interaction logic
     UserInputService.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if ActiveMenu then
-                local objects = Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)
-                local hitMenu, hitTrigger = false, false
-                for _, v in pairs(objects) do
-                    if v == ActiveMenu.Frame or v:IsDescendantOf(ActiveMenu.Frame) then hitMenu = true end
-                    if v == ActiveMenu.Trigger or v:IsDescendantOf(ActiveMenu.Trigger) then hitTrigger = true end
-                end
-                if not hitMenu and not hitTrigger then CloseCurrentMenu() end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and ActiveMenu then
+            local pos = input.Position
+            local objects = Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(pos.X, pos.Y)
+            local hit = false
+            for _, v in pairs(objects) do
+                if v == ActiveMenu.Frame or v:IsDescendantOf(ActiveMenu.Frame) or v == ActiveMenu.Trigger then hit = true break end
             end
+            if not hit then CloseCurrentMenu() end
         end
     end)
 
+    -- Dragging logic
     local dragging, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -121,15 +121,17 @@ function Library:Init()
         TabButton.Text = ""
         TabButton.Parent = TabContainer
 
+        local Layout = Instance.new("UIListLayout", TabButton)
+        Layout.FillDirection = Enum.FillDirection.Horizontal
+        Layout.VerticalAlignment = Enum.VerticalAlignment.Center
+        Layout.Padding = UDim.new(0, 6)
+
         local Icon = Instance.new("ImageLabel")
         Icon.Size = UDim2.new(0, 16, 0, 16)
         Icon.BackgroundTransparency = 1
         Icon.Image = "rbxassetid://" .. tostring(imageId)
         Icon.ImageColor3 = Colors.DarkText
         Icon.Parent = TabButton
-        Instance.new("UIListLayout", TabButton).FillDirection = Enum.FillDirection.Horizontal
-        TabButton.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-        TabButton.UIListLayout.Padding = UDim.new(0, 6)
 
         local Label = Instance.new("TextLabel")
         Label.Text = name:upper()
@@ -204,17 +206,17 @@ function Library:Init()
             local List = Instance.new("UIListLayout", Container)
             List.Padding = UDim.new(0, 8)
             List:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                Container.CanvasSize = UDim2.new(0,0,0, List.AbsoluteContentSize.Y + 10)
+                Container.CanvasSize = UDim2.new(0, 0, 0, List.AbsoluteContentSize.Y + 10)
             end)
 
             local SectionObject = {}
 
             function SectionObject:AddToggle(text, default, callback)
-                local ToggleBtn = Instance.new("TextButton")
-                ToggleBtn.Size = UDim2.new(1, 0, 0, 20)
-                ToggleBtn.BackgroundTransparency = 1
-                ToggleBtn.Text = ""
-                ToggleBtn.Parent = Container
+                local ToggleFrame = Instance.new("TextButton")
+                ToggleFrame.Size = UDim2.new(1, 0, 0, 20)
+                ToggleFrame.BackgroundTransparency = 1
+                ToggleFrame.Text = ""
+                ToggleFrame.Parent = Container
 
                 local Lbl = Instance.new("TextLabel")
                 Lbl.Text = text
@@ -224,15 +226,14 @@ function Library:Init()
                 Lbl.TextSize = 12
                 Lbl.BackgroundTransparency = 1
                 Lbl.TextXAlignment = Enum.TextXAlignment.Left
-                Lbl.Parent = ToggleBtn
+                Lbl.Parent = ToggleFrame
 
                 local Box = Instance.new("Frame")
                 Box.Size = UDim2.new(0, 14, 0, 14)
                 Box.Position = UDim2.new(1, 0, 0.5, 0)
                 Box.AnchorPoint = Vector2.new(1, 0.5)
                 Box.BackgroundColor3 = Colors.ControlBg
-                Box.BorderSizePixel = 0
-                Box.Parent = ToggleBtn
+                Box.Parent = ToggleFrame
                 Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 3)
 
                 local Check = Instance.new("Frame")
@@ -243,11 +244,12 @@ function Library:Init()
                 Instance.new("UICorner", Check).CornerRadius = UDim.new(0, 3)
 
                 local state = default
-                ToggleBtn.MouseButton1Click:Connect(function()
+                ToggleFrame.MouseButton1Click:Connect(function()
                     state = not state
                     Check.Visible = state
                     callback(state)
                 end)
+                callback(default) -- Sync on Init
             end
 
             function SectionObject:AddSlider(text, min, max, default, callback)
@@ -314,6 +316,7 @@ function Library:Init()
                         end)
                     end
                 end)
+                callback(default) -- Sync on Init
             end
 
             function SectionObject:AddDropdown(text, options, default, callback)
@@ -351,7 +354,7 @@ function Library:Init()
                 ListFrame.Size = UDim2.new(0, 140, 0, #options * 22)
                 ListFrame.BackgroundColor3 = Colors.Dropdown
                 ListFrame.Visible = false
-                ListFrame.ZIndex = 105
+                ListFrame.ZIndex = 1100
                 ListFrame.Parent = DropdownContainer
                 Instance.new("UICorner", ListFrame).CornerRadius = UDim.new(0, 4)
                 local ListLayout = Instance.new("UIListLayout", ListFrame)
@@ -371,7 +374,10 @@ function Library:Init()
                         current = opt
                         Trigger.Text = tostring(current)
                         for _, v in pairs(ListFrame:GetChildren()) do
-                            if v:IsA("TextButton") then v.TextColor3 = Colors.Text v.BackgroundColor3 = Colors.Dropdown end
+                            if v:IsA("TextButton") then
+                                v.TextColor3 = Colors.Text
+                                v.BackgroundColor3 = Colors.Dropdown
+                            end
                         end
                         Btn.TextColor3 = Colors.Accent
                         Btn.BackgroundColor3 = Colors.DropdownSelectedBg
@@ -391,10 +397,11 @@ function Library:Init()
                 RunService.RenderStepped:Connect(function()
                     if ListFrame.Visible then
                         local abs = Trigger.AbsolutePosition
-                        local mabs = Main.AbsolutePosition
-                        ListFrame.Position = UDim2.new(0, (abs.X - mabs.X) + Trigger.AbsoluteSize.X - 140, 0, abs.Y - mabs.Y + Trigger.AbsoluteSize.Y + 2)
+                        local mabs = Main.AbsolutePosition -- Anchor popups to ScreenGui, use Trigger pos
+                        ListFrame.Position = UDim2.new(0, abs.X + Trigger.AbsoluteSize.X - 140, 0, abs.Y + Trigger.AbsoluteSize.Y + 2)
                     end
                 end)
+                callback(current) -- Sync on Init
             end
 
             function SectionObject:AddKeybind(text, default, callback)
@@ -446,6 +453,7 @@ function Library:Init()
                         end
                     end)
                 end)
+                callback(default) -- Sync on Init
             end
 
             function SectionObject:AddColorPicker(text, default, callback)
@@ -473,12 +481,21 @@ function Library:Init()
                 Instance.new("UICorner", Preview).CornerRadius = UDim.new(0, 3)
 
                 local Pop = Instance.new("Frame")
-                Pop.Size = UDim2.new(0, 140, 0, 120)
+                Pop.Size = UDim2.new(0, 140, 0, 150)
                 Pop.BackgroundColor3 = Colors.Dropdown
                 Pop.Visible = false
-                Pop.ZIndex = 110
+                Pop.ZIndex = 1100
                 Pop.Parent = DropdownContainer
                 Instance.new("UICorner", Pop).CornerRadius = UDim.new(0, 4)
+
+                -- Wheel logic
+                local Wheel = Instance.new("ImageLabel")
+                Wheel.Size = UDim2.new(0, 110, 0, 110)
+                Wheel.Position = UDim2.new(0.5, -55, 0, 10)
+                Wheel.Image = "rbxassetid://6020299385"
+                Wheel.BackgroundTransparency = 1
+                Wheel.ZIndex = 1101
+                Wheel.Parent = Pop
 
                 Preview.MouseButton1Click:Connect(function()
                     if Pop.Visible then CloseCurrentMenu() else
@@ -491,10 +508,10 @@ function Library:Init()
                 RunService.RenderStepped:Connect(function()
                     if Pop.Visible then
                         local abs = Preview.AbsolutePosition
-                        local mabs = Main.AbsolutePosition
-                        Pop.Position = UDim2.new(0, (abs.X - mabs.X) - 116, 0, abs.Y - mabs.Y + 20)
+                        Pop.Position = UDim2.new(0, abs.X - 116, 0, abs.Y + 20)
                     end
                 end)
+                callback(default) -- Sync on Init
             end
 
             return SectionObject
