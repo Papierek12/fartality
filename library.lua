@@ -380,8 +380,11 @@ local function CreateTab(imageId, name)
             PCorner.CornerRadius = UDim.new(0, 3)
             PCorner.Parent = PreviewBtn
             
-            local PickerPop = Instance.new("Frame")
+            -- [FIXED] Changed from Frame to TextButton to block click-through
+            local PickerPop = Instance.new("TextButton") 
             PickerPop.Name = "ColorPickerPopup"
+            PickerPop.Text = ""
+            PickerPop.AutoButtonColor = false
             PickerPop.Size = UDim2.new(0, 140, 0, 170)
             PickerPop.BackgroundColor3 = Colors.Dropdown
             PickerPop.Visible = false
@@ -651,8 +654,11 @@ local function CreateTab(imageId, name)
             TPad.PaddingRight = UDim.new(0, 6)
             TPad.Parent = TriggerBtn
 
-            local FloatingList = Instance.new("Frame")
+            -- [FIXED] Changed from Frame to TextButton to block click-through
+            local FloatingList = Instance.new("TextButton") 
             FloatingList.Name = text .. "_List"
+            FloatingList.Text = ""
+            FloatingList.AutoButtonColor = false
             FloatingList.Size = UDim2.new(0, 100, 0, 0)
             FloatingList.BackgroundColor3 = Colors.Dropdown
             FloatingList.BorderSizePixel = 0
