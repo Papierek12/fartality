@@ -85,7 +85,6 @@ DropdownContainer.Parent = Main
 -- // LOGIC // --
 -----------------------------------------------------------
 
--- [NEW] TOGGLE UI VISIBILITY
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if input.KeyCode == Enum.KeyCode.Insert then
         ScreenGui.Enabled = not ScreenGui.Enabled
@@ -380,7 +379,6 @@ local function CreateTab(imageId, name)
             PCorner.CornerRadius = UDim.new(0, 3)
             PCorner.Parent = PreviewBtn
             
-            -- [FIXED] Changed from Frame to TextButton to block click-through
             local PickerPop = Instance.new("TextButton") 
             PickerPop.Name = "ColorPickerPopup"
             PickerPop.Text = ""
@@ -654,7 +652,6 @@ local function CreateTab(imageId, name)
             TPad.PaddingRight = UDim.new(0, 6)
             TPad.Parent = TriggerBtn
 
-            -- [FIXED] Changed from Frame to TextButton to block click-through
             local FloatingList = Instance.new("TextButton") 
             FloatingList.Name = text .. "_List"
             FloatingList.Text = ""
